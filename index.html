@@ -219,7 +219,7 @@ var MAPEL_K13  = ["PAI","PKN","Bahasa Indonesia","MTK","IPA","IPS","Bahasa Inggr
 var MAPEL_MERD = ["PAI","Pendidikan Pancasila","Bahasa Indonesia","Matematika","IPA","IPS","Bahasa Inggris","Seni Musik","PJOK","Bahasa Sunda","TIK"];
 
 // Helper: dapatkan mapel list berdasarkan kelas
-function getMapelList(kelas) {
+window.getMapelList = function(kelas) {
   return (kelas==="9A"||kelas==="9B") ? MAPEL_K13 : MAPEL_MERD;
 }
 // Global alias (untuk fungsi yg butuh MAPEL_LIST)
@@ -245,7 +245,7 @@ var ACCOUNTS = {
 
 // Mapel per guru per kelas (untuk tampilan tabel guru)
 // Dibangun dari ACCOUNTS.mapel flat list per kelas
-function getMapelGuru(username, kelas) {
+window.getMapelGuru = function(username, kelas) {
   var acc = ACCOUNTS[username];
   if (!acc || acc.role !== "guru") return [];
   var mapelList = getMapelList(kelas);
@@ -264,7 +264,7 @@ function getMapelGuru(username, kelas) {
 
 // MAPEL_GURU lookup: mapel+kelas -> nama guru
 var MAPEL_GURU = {};
-function buildMapelGuru() {
+window.buildMapelGuru = function() {
   MAPEL_GURU = {};
   Object.keys(ACCOUNTS).forEach(function(k) {
     var u = ACCOUNTS[k];
@@ -280,7 +280,7 @@ function buildMapelGuru() {
 }
 buildMapelGuru();
 
-function getGuruMapel(kelas, mapel) {
+window.getGuruMapel = function(kelas, mapel) {
   return MAPEL_GURU[kelas+"_"+mapel] || "—";
 }
 
@@ -325,11 +325,11 @@ var unsaved = false;
 var nilaiCache = {}; // cache: "kelas_mapel" -> data
 
 // ── FIREBASE HELPERS ──────────────────────
-function docId(kelas, mapel) {
+window.docId = function(kelas, mapel) {
   return kelas + "_" + mapel.replace(/\s+/g, "_");
 }
 
-async function loadNilai(kelas, mapel) {
+window.loadNilai = async function(kelas, mapel) {
   var key = docId(kelas, mapel);
   if (nilaiCache[key] !== undefined) return nilaiCache[key];
   try {
@@ -343,14 +343,14 @@ async function loadNilai(kelas, mapel) {
   }
 }
 
-async function saveNilai(kelas, mapel, data) {
+window.saveNilai = async function(kelas, mapel, data) {
   var key = docId(kelas, mapel);
   await setDoc(doc(db, "nilai", key), data);
   nilaiCache[key] = data;
 }
 
 // ── TOAST ─────────────────────────────────
-function showToast(msg) {
+window.showToast = function(msg) {
   var t = document.getElementById("toast");
   t.textContent = msg;
   t.classList.add("show");
@@ -372,7 +372,7 @@ window.toggleEye = function() {
 };
 
 // ── LOGIN ─────────────────────────────────
-function doLogin() {
+window.doLogin = function() {
   var u = document.getElementById("inp-user").value.trim().toLowerCase();
   var p = document.getElementById("inp-pass").value.trim();
   var errEl = document.getElementById("login-error");
@@ -432,14 +432,14 @@ var SETTINGS = {
 };
 var settingsCache = null;
 
-function getKKM(kelas) {
+window.getKKM = function(kelas) {
   if (kelas === "7") return SETTINGS.kkm_kelas7;
   if (kelas === "8") return SETTINGS.kkm_kelas8;
   if (kelas === "9") return SETTINGS.kkm_kelas9;
   return SETTINGS.kkm_kelas9; // default
 }
 
-async function loadSettings() {
+window.loadSettings = async function() {
   if (settingsCache) return;
   try {
     var snap = await getDoc(doc(db, "config", "settings"));
@@ -455,15 +455,15 @@ async function loadSettings() {
     }
   } catch(e) { console.log("Using default settings"); }
   settingsCache = true;
-}
+};
 
-async function saveSettings() {
+window.saveSettings = async function() {
   await setDoc(doc(db, "config", "settings"), SETTINGS);
   settingsCache = true;
-}
+};
 
 // ── CALC ──────────────────────────────────
-function hitungNA(nh1, nh2, asts, asat) {
+window.hitungNA = function(nh1, nh2, asts, asat) {
   var vals = [nh1, nh2, asts, asat].map(function(v) { return parseFloat(v) || 0; });
   var p1 = SETTINGS.pct_nh1/100, p2 = SETTINGS.pct_nh2/100,
       p3 = SETTINGS.pct_asts/100, p4 = SETTINGS.pct_asat/100;
@@ -793,7 +793,7 @@ window.handleAkunBtn = function() {
 };
 
 // ── ADMIN VIEW ────────────────────────────
-async function renderAdmin() {
+window.renderAdmin = async function() {
   document.getElementById("main-content").innerHTML = '<p style="padding:2rem;color:var(--muted);text-align:center">Memuat data dari database...</p>';
 
   var kelasList = Object.keys(SISWA).sort();
