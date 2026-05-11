@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Input Nilai Rapor — SMP PGRI 13 Bogor</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1161,35 +1164,49 @@ window.importExcel = function(input) {
 // ── TEMPLATE & IMPORT ASTS MASSAL ─────────
 window.downloadTemplateASTS = function() {
   if (typeof XLSX === "undefined") { alert("Library XLSX belum siap."); return; }
-  var wb = XLSX.utils.book_new();
-
-  var petunjuk = [
-    ["PETUNJUK PENGISIAN TEMPLATE ASTS MASSAL"],[""],
-    ["1. File ini berisi "+ MAPEL_LIST.length +" sheet — satu sheet per mata pelajaran"],
-    ["2. Isi nilai ASTS pada kolom 'ASTS' untuk setiap siswa di setiap sheet"],
-    ["3. Nilai harus berupa angka 0 - 100"],
-    ["4. JANGAN ubah nama siswa, urutan baris, nama kolom, atau nama sheet"],
-    ["5. Setelah semua sheet terisi, simpan dan upload via tombol 'Upload ASTS'"],[""],
-    ["Mata pelajaran: "+ MAPEL_LIST.join(", ")],
-  ];
-  var wsPetunjuk = XLSX.utils.aoa_to_sheet(petunjuk);
-  wsPetunjuk["!cols"] = [{wch:70}];
-  XLSX.utils.book_append_sheet(wb, wsPetunjuk, "Petunjuk");
-
-  MAPEL_LIST.forEach(function(m) {
-    var rows = [["KELAS","NO","NAMA SISWA","ASTS"]];
-    ["9A","9B"].forEach(function(kelas) {
-      SISWA[kelas].forEach(function(nama, idx) { rows.push([kelas, idx+1, nama, ""]); });
-      rows.push(["","","",""]);
+  
+  // Buat template terpisah untuk setiap tingkatan kelas
+  var tingkatanKelas = ["7", "8", "9"];
+  
+  tingkatanKelas.forEach(function(tingkat) {
+    var wb = XLSX.utils.book_new();
+    
+    var petunjuk = [
+      ["PETUNJUK PENGISIAN TEMPLATE ASTS MASSAL - KELAS "+tingkat],[""],
+      ["1. File ini berisi "+ MAPEL_LIST.length +" sheet — satu sheet per mata pelajaran"],
+      ["2. Isi nilai ASTS pada kolom 'ASTS' untuk setiap siswa di setiap sheet"],
+      ["3. Nilai harus berupa angka 0 - 100"],
+      ["4. JANGAN ubah nama siswa, urutan baris, nama kolom, atau nama sheet"],
+      ["5. Setelah semua sheet terisi, simpan dan upload via tombol 'Upload ASTS'"],[""],
+      ["Mata pelajaran: "+ MAPEL_LIST.join(", ")],
+    ];
+    var wsPetunjuk = XLSX.utils.aoa_to_sheet(petunjuk);
+    wsPetunjuk["!cols"] = [{wch:70}];
+    XLSX.utils.book_append_sheet(wb, wsPetunjuk, "Petunjuk");
+    
+    // Dapatkan daftar kelas untuk tingkatan ini
+    var kelasList = Object.keys(SISWA).filter(function(k) { 
+      return k.startsWith(tingkat); 
     });
-    var ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{wch:7},{wch:5},{wch:32},{wch:10}];
-    var sName = m.length > 28 ? m.substring(0,28) : m;
-    XLSX.utils.book_append_sheet(wb, ws, sName);
+    
+    MAPEL_LIST.forEach(function(m) {
+      var rows = [["KELAS","NO","NAMA SISWA","ASTS"]];
+      kelasList.forEach(function(kelas) {
+        if (SISWA[kelas]) {
+          SISWA[kelas].forEach(function(nama, idx) { rows.push([kelas, idx+1, nama, ""]); });
+          rows.push(["","","",""]);
+        }
+      });
+      var ws = XLSX.utils.aoa_to_sheet(rows);
+      ws["!cols"] = [{wch:7},{wch:5},{wch:32},{wch:10}];
+      var sName = m.length > 28 ? m.substring(0,28) : m;
+      XLSX.utils.book_append_sheet(wb, ws, sName);
+    });
+    
+    XLSX.writeFile(wb, "Template_ASTS_Massal_Kelas"+tingkat+"_SMPPGRI13.xlsx");
   });
-
-  XLSX.writeFile(wb, "Template_ASTS_Massal_SMPPGRI13.xlsx");
-  showToast("Template ASTS berhasil didownload ✓");
+  
+  showToast("Template ASTS untuk Kelas 7, 8, dan 9 berhasil didownload ✓");
 };
 
 window.importASTS = async function(input) {
@@ -1203,6 +1220,9 @@ window.importASTS = async function(input) {
       var totalNotFound = [];
       var errors = [];
 
+      // Dapatkan semua kelas yang tersedia di sistem
+      var semuaKelas = Object.keys(SISWA);
+      
       for (var mi = 0; mi < MAPEL_LIST.length; mi++) {
         var m = MAPEL_LIST[mi];
         var sName = m.length > 28 ? m.substring(0,28) : m;
@@ -1218,18 +1238,31 @@ window.importASTS = async function(input) {
         var iASTS  = header.findIndex(function(h) { return h.includes("ASTS"); });
         if (iNama < 0 || iASTS < 0) { errors.push(m + " (kolom tidak dikenali)"); continue; }
 
-        var dataPerKelas = {"9A":{},"9B":{}};
+        // Buat object dinamis untuk semua kelas
+        var dataPerKelas = {};
+        semuaKelas.forEach(function(k) { dataPerKelas[k] = {}; });
+        
         rows.slice(1).forEach(function(row) {
           var kVal  = iKelas >= 0 ? String(row[iKelas]||"").trim() : "";
           var nVal  = String(row[iNama]||"").trim();
           var aVal  = row[iASTS];
           if (!nVal || aVal === "") return;
-          var kelas = (kVal==="9A"||kVal==="9B") ? kVal : null;
-          if (!kelas) {
-            ["9A","9B"].forEach(function(k) {
-              if (SISWA[k].find(function(n){return n.toLowerCase()===nVal.toLowerCase();})) kelas=k;
-            });
+          
+          // Cek apakah kelas valid dan ada di SISWA
+          var kelas = null;
+          if (semuaKelas.indexOf(kVal) >= 0) {
+            kelas = kVal;
+          } else {
+            // Jika kolom KELAS kosong atau tidak valid, coba cari dari nama siswa
+            for (var ki = 0; ki < semuaKelas.length; ki++) {
+              var k = semuaKelas[ki];
+              if (SISWA[k] && SISWA[k].find(function(n){return n.toLowerCase()===nVal.toLowerCase();})) {
+                kelas = k;
+                break;
+              }
+            }
           }
+          
           if (!kelas) return;
           var match = SISWA[kelas].find(function(n){return n.toLowerCase()===nVal.toLowerCase();});
           if (match) {
@@ -1238,8 +1271,9 @@ window.importASTS = async function(input) {
           } else { totalNotFound.push(nVal+" ("+m+")"); }
         });
 
-        for (var ki=0; ki<2; ki++) {
-          var kelas = ["9A","9B"][ki];
+        // Simpan data untuk setiap kelas yang memiliki data
+        for (var ki = 0; ki < semuaKelas.length; ki++) {
+          var kelas = semuaKelas[ki];
           if (Object.keys(dataPerKelas[kelas]).length===0) continue;
           var existing = await loadNilai(kelas, m);
           var updated = Object.assign({}, existing);
