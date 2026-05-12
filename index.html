@@ -845,7 +845,7 @@ window.renderAdmin = async function() {
   document.getElementById("main-content").innerHTML = '<p style="padding:2rem;color:var(--muted);text-align:center">Memuat data dari database...</p>';
 
   var kelasList = Object.keys(SISWA).sort();
-  var allData = {};
+  window.allData = {};
   var totalFields = 0;
   var filledFields = 0;
   var totalSiswa = 0;
@@ -853,12 +853,12 @@ window.renderAdmin = async function() {
   for (var ki = 0; ki < kelasList.length; ki++) {
     var k = kelasList[ki];
     var mapelK = getMapelList(k);
-    allData[k] = {};
+    window.allData[k] = {};
     totalSiswa += SISWA[k].length;
     for (var mi = 0; mi < mapelK.length; mi++) {
       var m = mapelK[mi];
       var d = await loadNilai(k, m);
-      allData[k][m] = d;
+      window.allData[k][m] = d;
       SISWA[k].forEach(function(nama) {
         totalFields += 4;
         var v = d[nama] || {};
@@ -877,7 +877,7 @@ window.renderAdmin = async function() {
   var totalEntri = filledFields;
   var pct = totalFields > 0 ? Math.round(filledFields / totalFields * 100) : 0;
   var siswaKelas = SISWA[currentKelas];
-  var dataDetail = (allData[currentKelas] && allData[currentKelas][currentMapel]) ? allData[currentKelas][currentMapel] : {};
+  var dataDetail = (window.allData[currentKelas] && window.allData[currentKelas][currentMapel]) ? window.allData[currentKelas][currentMapel] : {};
   var ranks = getRanks(dataDetail, siswaKelas);
 
   var html = '<div class="page-header"><h2>Dashboard Administrator</h2><p>SMP PGRI 13 Bogor — Semester Genap 2025/2026 &nbsp;•&nbsp; Data real-time dari database</p></div>'+
@@ -912,7 +912,7 @@ window.renderAdmin = async function() {
     '<div class="mapel-progress-grid">';
 
   mapelKelas.forEach(function(m) {
-    var d = (allData[currentKelas] && allData[currentKelas][m]) ? allData[currentKelas][m] : {};
+    var d = (window.allData[currentKelas] && window.allData[currentKelas][m]) ? window.allData[currentKelas][m] : {};
     var totalFields = siswaKelas.length * 4; // NH1, NH2, ASTS, ASAT per siswa
     var filledFields = 0;
     var filledNH1 = 0, filledNH2 = 0, filledASTS = 0, filledASAT = 0;
@@ -962,7 +962,7 @@ window.renderAdmin = async function() {
   document.getElementById("main-content").innerHTML = html;
 
   // store allData for export
-  window._allData = allData;
+  window._allData = window.allData;
 }
 
 window.renderSettings = async function() {
@@ -1346,15 +1346,15 @@ window.updateSiswa = async function() {
     }
     
     // Jika pindah kelas, pindahkan juga data nilai
-    if (kelasBaru !== kelasLama && allData[kelasLama]) {
-      if (!allData[kelasBaru]) allData[kelasBaru] = {};
-      var mapelList = Object.keys(allData[kelasLama]);
+    if (kelasBaru !== kelasLama && window.allData[kelasLama]) {
+      if (!window.allData[kelasBaru]) window.allData[kelasBaru] = {};
+      var mapelList = Object.keys(window.allData[kelasLama]);
       for (var mi = 0; mi < mapelList.length; mi++) {
         var m = mapelList[mi];
-        if (allData[kelasLama][m] && allData[kelasLama][m][namaLama]) {
-          if (!allData[kelasBaru][m]) allData[kelasBaru][m] = {};
-          allData[kelasBaru][m][namaBaru] = allData[kelasLama][m][namaLama];
-          delete allData[kelasLama][m][namaLama];
+        if (window.allData[kelasLama][m] && window.allData[kelasLama][m][namaLama]) {
+          if (!window.allData[kelasBaru][m]) window.allData[kelasBaru][m] = {};
+          window.allData[kelasBaru][m][namaBaru] = window.allData[kelasLama][m][namaLama];
+          delete window.allData[kelasLama][m][namaLama];
         }
       }
     }
@@ -1365,19 +1365,19 @@ window.updateSiswa = async function() {
     
     // Simpan data nilai yang dipindahkan
     if (kelasBaru !== kelasLama) {
-      var mapelList2 = Object.keys(allData[kelasBaru]||{});
+      var mapelList2 = Object.keys(window.allData[kelasBaru]||{});
       for (var mi2 = 0; mi2 < mapelList2.length; mi2++) {
         var m2 = mapelList2[mi2];
-        if (allData[kelasBaru][m2]) {
+        if (window.allData[kelasBaru][m2]) {
           var ref = doc(db, "nilai", kelasBaru+"_"+m2);
-          await setDoc(ref, allData[kelasBaru][m2], {merge:true});
+          await setDoc(ref, window.allData[kelasBaru][m2], {merge:true});
         }
       }
       // Hapus data lama dari kelas lama
-      var mapelList3 = Object.keys(allData[kelasLama]||{});
+      var mapelList3 = Object.keys(window.allData[kelasLama]||{});
       for (var mi3 = 0; mi3 < mapelList3.length; mi3++) {
         var m3 = mapelList3[mi3];
-        if (Object.keys(allData[kelasLama][m3]||{}).length === 0) {
+        if (Object.keys(window.allData[kelasLama][m3]||{}).length === 0) {
           await deleteDoc(doc(db, "nilai", kelasLama+"_"+m3));
         }
       }
@@ -1414,18 +1414,18 @@ window.hapusSiswa = async function(kelas, nama) {
     }
     
     // Hapus data nilai dari semua mapel
-    if (typeof allData !== 'undefined' && allData && allData[kelas]) {
-      var mapelList = Object.keys(allData[kelas]);
+    if (typeof window.allData !== 'undefined' && window.allData && window.allData[kelas]) {
+      var mapelList = Object.keys(window.allData[kelas]);
       for (var mi = 0; mi < mapelList.length; mi++) {
         var m = mapelList[mi];
-        if (allData[kelas][m] && allData[kelas][m][nama]) {
-          delete allData[kelas][m][nama];
+        if (window.allData[kelas][m] && window.allData[kelas][m][nama]) {
+          delete window.allData[kelas][m][nama];
           // Simpan perubahan ke database
           var ref = doc(db, "nilai", kelas+"_"+m);
-          if (Object.keys(allData[kelas][m]).length === 0) {
+          if (Object.keys(window.allData[kelas][m]).length === 0) {
             await deleteDoc(ref);
           } else {
-            await setDoc(ref, allData[kelas][m], {merge:true});
+            await setDoc(ref, window.allData[kelas][m], {merge:true});
           }
         }
       }
