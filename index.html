@@ -528,7 +528,7 @@ async function renderGuru() {
       '<div style="padding:2rem;text-align:center;color:var(--muted)">'+
       '<p>Anda tidak memiliki mata pelajaran di kelas '+currentKelas+'.</p>'+
       '<p style="margin-top:8px;font-size:0.85rem">Pilih kelas lain di atas atau klik tombol kembali.</p>'+
-      '<button onclick="switchKelas(\'\')" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
+      '<button onclick="switchKelas(\')" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
       '</div>';
     return;
   }
@@ -544,7 +544,7 @@ async function renderGuru() {
   var mapelTabs = myMapel.length > 1
     ? '<span class="ctrl-label" style="margin-left:8px">Mapel:</span>' +
       myMapel.map(function(m) {
-        return '<button class="tab-btn'+(m===currentMapel?" active":"")+'" onclick="switchMapel(\''+m+'\')">'+m+'</button>';
+        return '<button class="tab-btn'+(m===currentMapel?" active":"")+'" onclick="switchMapel(\''+m+')">'+m+'</button>';
       }).join("") : "";
 
   var html =
@@ -558,7 +558,7 @@ async function renderGuru() {
     '</div>'+
     '<div class="controls"><span class="ctrl-label">Kelas:</span>'+
     Object.keys(SISWA).sort().map(function(k){
-      return '<button class="tab-btn'+(currentKelas===k?" active":"")+'" onclick="switchKelas(\''+k+'\')">'+k+'</button>';
+      return '<button class="tab-btn'+(currentKelas===k?" active":"")+'" onclick="switchKelas(\''+k+')">'+k+'</button>';
     }).join("")+
     mapelTabs+'</div>'+
     '<div class="table-wrap"><table><thead><tr>'+
@@ -618,7 +618,7 @@ async function renderGuruASAJ() {
     '</div>'+
     '<div class="controls"><span class="ctrl-label">Kelas:</span>'+
     Object.keys(SISWA).sort().map(function(k){
-      return '<button class="tab-btn'+(currentKelas===k?" active":"")+'" onclick="switchKelas(\''+k+'\')">'+k+'</button>';
+      return '<button class="tab-btn'+(currentKelas===k?" active":"")+'" onclick="switchKelas(\''+k+')">'+k+'</button>';
     }).join("")+
     '</div>'+
     '<div class="table-wrap"><table><thead><tr>'+
@@ -792,7 +792,7 @@ window.switchKelas = function(k) {
         '<div style="padding:2rem;text-align:center;color:var(--muted)">'+
         '<p>Anda tidak memiliki mata pelajaran di kelas '+k+'.</p>'+
         '<p style="margin-top:8px;font-size:0.85rem">Silakan pilih kelas lain yang sesuai dengan akses Anda.</p>'+
-        '<button onclick="switchKelas(\'\')" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
+        '<button onclick="switchKelas(\')" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
         '</div>';
       return;
     }
@@ -888,7 +888,7 @@ window.renderAdmin = async function() {
 
     '<div class="controls" style="margin-bottom:1rem"><span class="ctrl-label">Kelas:</span>'+
     Object.keys(SISWA).sort().map(function(k){
-      return '<button class="tab-btn'+(currentKelas===k?" active":"")+'" onclick="adminKelas(\''+k+'\')">'+k+'</button>';
+      return '<button class="tab-btn'+(currentKelas===k?" active":"")+'" onclick="adminKelas(\''+k+')">'+k+'</button>';
     }).join("")+
     '<button class="export-btn" onclick="exportXLSX()" style="margin-left:8px">Export XLSX ↓</button>'+
     '<button class="tab-btn" onclick="renderAdmin()" style="margin-left:4px">🔄 Refresh</button>'+
@@ -911,7 +911,7 @@ window.renderAdmin = async function() {
     });
     var p = Math.round(filledFields / totalFields * 100);
     var detail = 'NH1: '+filledNH1+' | NH2: '+filledNH2+' | ASTS: '+filledASTS+' | ASAT: '+filledASAT+' dari '+siswaKelas.length+' siswa';
-    html += '<div class="mapel-prog-card" onclick="adminViewMapel(\''+m+'\')">'+
+    html += '<div class="mapel-prog-card" onclick="adminViewMapel(\''+m+')">'+
       '<div class="mp-name">'+m+'</div>'+
       '<div class="mp-guru">'+getGuruMapel(currentKelas,m)+'</div>'+
       '<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:'+p+'%"></div></div>'+
@@ -967,10 +967,10 @@ window.renderSettings = async function() {
         '<label>'+label+' <span id="lbl-'+k+'" style="color:var(--teal);font-weight:600">'+SETTINGS['pct_'+k]+'%</span></label>'+
         '<div style="display:flex;align-items:center;gap:10px">'+
         '<input type="range" min="0" max="100" value="'+SETTINGS['pct_'+k]+'" id="rng-'+k+'" '+
-        'oninput="document.getElementById(\'lbl-'+k+'\').textContent=this.value+\'%\';updateTotal()" '+
+        'oninput="document.getElementById(\'lbl-'+k+').textContent=this.value+\'%\';updateTotal()" '+
         'style="flex:1;accent-color:var(--teal)">'+
         '<input type="number" min="0" max="100" value="'+SETTINGS['pct_'+k]+'" id="num-'+k+'" '+
-        'oninput="document.getElementById(\'rng-'+k+'\').value=this.value;document.getElementById(\'lbl-'+k+'\').textContent=this.value+\'%\';updateTotal()" '+
+        'oninput="document.getElementById(\'rng-'+k+').value=this.value;document.getElementById(\'lbl-'+k+').textContent=this.value+\'%\';updateTotal()" '+
         'style="width:65px;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-family:\'DM Mono\',monospace;font-size:0.85rem;text-align:center;outline:none">'+
         '</div></div>';
     }).join("")+
@@ -1139,8 +1139,8 @@ window.filterSiswaTable = function() {
   }
   
   tbody.innerHTML = rows.map(function(r) {
-    var editBtn = '<button class="tab-btn" style="padding:4px 12px;font-size:0.75rem;margin-right:6px" onclick="window.editSiswa(\''+encodeURIComponent(r.kelas)+'\',\''+encodeURIComponent(r.nama)+'\')">✏️ Edit</button>';
-    var deleteBtn = '<button class="tab-btn" style="padding:4px 12px;font-size:0.75rem;background:var(--danger-light);color:var(--danger);border-color:#f5c6c2" onclick="window.hapusSiswa(\''+encodeURIComponent(r.kelas)+'\',\''+encodeURIComponent(r.nama)+'\')">🗑️ Hapus</button>';
+    var editBtn = '<button class="tab-btn" style="padding:4px 12px;font-size:0.75rem;margin-right:6px" onclick="window.editSiswa('" + encodeURIComponent(r.kelas) + "','" + encodeURIComponent(r.nama) + "')">✏️ Edit</button>';
+    var deleteBtn = '<button class="tab-btn" style="padding:4px 12px;font-size:0.75rem;background:var(--danger-light);color:var(--danger);border-color:#f5c6c2" onclick="window.hapusSiswa('" + encodeURIComponent(r.kelas) + "','" + encodeURIComponent(r.nama) + "')">🗑️ Hapus</button>';
     return '<tr>'+
       '<td style="font-family:\'DM Mono\',monospace;font-size:0.78rem">'+(r.nisn||'-')+'</td>'+
       '<td style="font-weight:500">'+r.nama+'</td>'+
@@ -1850,9 +1850,9 @@ window.renderAkunAdmin = function() {
     html += '<tr>'+
       '<td>'+u.nama+'</td>'+
       '<td style="font-family:\'DM Mono\',monospace;font-size:0.82rem">'+k+'</td>'+
-      '<td><span id="pw-'+k+'" style="font-family:\'DM Mono\',monospace;font-size:0.82rem;filter:blur(4px);cursor:pointer" onclick="togglePwBlur(\''+k+'\')">'+u.pass+'</span></td>'+
+      '<td><span id="pw-'+k+'" style="font-family:\'DM Mono\',monospace;font-size:0.82rem;filter:blur(4px);cursor:pointer" onclick="togglePwBlur(\''+k+')">'+u.pass+'</span></td>'+
       (function(){ var k2=k; var mp=[]; Object.keys(SISWA).sort().forEach(function(kls){ var m=getMapelGuru(k2,kls); if(m.length) mp.push(kls+': '+m.join(', ')); }); return '<td style="font-size:0.75rem;line-height:1.6">'+mp.join('<br>')||'—'+'</td>'; })()+
-      '<td><button class="tab-btn" style="font-size:0.75rem;padding:5px 12px" onclick="showEditAkun(\''+k+'\')">✏️ Edit</button></td>'+
+      '<td><button class="tab-btn" style="font-size:0.75rem;padding:5px 12px" onclick="showEditAkun(\''+k+')">✏️ Edit</button></td>'+
       '</tr>';
   });
 
@@ -1883,7 +1883,7 @@ window.showEditAkun = function(k) {
     '<div class="pass-wrap"><input type="password" id="edit-pass" value="'+u.pass+'" style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:\'DM Sans\',sans-serif;font-size:0.95rem;outline:none">'+
     '<button type="button" class="toggle-eye" onclick="toggleFieldEye(\'edit-pass\')">👁</button></div></div>'+
     '<div style="display:flex;gap:8px;margin-top:1rem">'+
-    '<button class="btn-save" style="flex:1" onclick="simpanEditAkun(\''+k+'\')">Simpan</button>'+
+    '<button class="btn-save" style="flex:1" onclick="simpanEditAkun(\''+k+')">Simpan</button>'+
     '<button class="btn-template" style="flex:1" onclick="closeModal()">Batal</button>'+
     '</div></div>';
   modal.classList.remove("hidden"); modal.style.display = "flex";
@@ -1928,7 +1928,7 @@ window.showUbahAkunGuru = function() {
     '<div class="pass-wrap"><input type="password" id="edit-pass-new" placeholder="Masukkan password baru" style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:\'DM Sans\',sans-serif;font-size:0.95rem;outline:none">'+
     '<button type="button" class="toggle-eye" onclick="toggleFieldEye(\'edit-pass-new\')">👁</button></div></div>'+
     '<div style="display:flex;gap:8px;margin-top:1rem">'+
-    '<button class="btn-save" style="flex:1" onclick="simpanAkunGuru(\''+k+'\')">Simpan</button>'+
+    '<button class="btn-save" style="flex:1" onclick="simpanAkunGuru(\''+k+')">Simpan</button>'+
     '<button class="btn-template" style="flex:1" onclick="closeModal()">Batal</button>'+
     '</div></div>';
   modal.classList.remove("hidden"); modal.style.display = "flex";
