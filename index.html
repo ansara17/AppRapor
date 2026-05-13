@@ -597,7 +597,7 @@ function buildMapelButtons(mapelList, activeMapel) {
 function buildKelasButtons(activeKelas, fnName) {
   return Object.keys(SISWA).sort().map(function(k) {
     var active = activeKelas===k ? ' active' : '';
-    return '<button class="tab-btn'+active+'" onclick="'+fnName+'('+JSON.stringify(k)+')">'+k+'</button>';
+    return '<button class="tab-btn'+active+'" onclick="'+fnName+'(\''+k+'\')">'+k+'</button>';
   }).join('');
 }
 
@@ -981,7 +981,7 @@ window.renderAdmin = async function() {
 
     '<div class="controls" style="margin-bottom:1rem"><span class="ctrl-label">Kelas:</span>'+
     Object.keys(SISWA).sort().map(function(k){
-      return '<button class="tab-btn'+(currentKelas===k?' active':'')+'" onclick="adminKelas('+JSON.stringify(k)+')">'+ k +'</button>';
+      return '<button class="tab-btn'+(currentKelas===k?' active':'')+'" onclick="adminKelas(\''+ k +'\')">'+ k +'</button>';
     }).join("")+
     '<button class="export-btn" onclick="exportXLSX()" style="margin-left:8px">Export XLSX ↓</button>'+
     '<button class="tab-btn" onclick="renderAdmin()" style="margin-left:4px">🔄 Refresh</button>'+
