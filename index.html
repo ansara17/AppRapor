@@ -601,7 +601,7 @@ async function renderGuru() {
       '<div style="padding:2rem;text-align:center;color:var(--muted)">'+
       '<p>Anda tidak memiliki mata pelajaran di kelas '+currentKelas+'.</p>'+
       '<p style="margin-top:8px;font-size:0.85rem">Pilih kelas lain di atas atau klik tombol kembali.</p>'+
-      '<button onclick="switchKelas(\')" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
+      '<button onclick="renderRapor()" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
       '</div>';
     return;
   }
@@ -865,7 +865,7 @@ window.switchKelas = function(k) {
         '<div style="padding:2rem;text-align:center;color:var(--muted)">'+
         '<p>Anda tidak memiliki mata pelajaran di kelas '+k+'.</p>'+
         '<p style="margin-top:8px;font-size:0.85rem">Silakan pilih kelas lain yang sesuai dengan akses Anda.</p>'+
-        '<button onclick="switchKelas(\')" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
+        '<button onclick="renderAdmin()" style="margin-top:16px;padding:10px 24px;background:var(--teal);color:white;border:none;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-weight:500;cursor:pointer">⬅ Kembali ke Kelas Sebelumnya</button>'+
         '</div>';
       return;
     }
